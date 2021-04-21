@@ -130,6 +130,7 @@ def main():
         routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
 
     # Add some fun. Just for test. Eason.
+    # There are other function or method to solve the search processing. We can also add some constraint to the method.
     # search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     # search_parameters.local_search_metaheuristic = (
     #     routing_enums_pb2.LocalSearchMetaheuristic.SIMULATED_ANNEALING
