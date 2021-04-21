@@ -10,9 +10,9 @@ from draft import cal_distance
 np.random.seed(0)
 total_points = 100
 
-'''
+"""
 1. Generate the X-ordered scanning routines.
-'''
+"""
 x = np.arange(-4.5, 5, 1.0)
 y = np.arange(-4.5, 5, 1.0)
 ctrl_vxs = np.zeros(total_points)
@@ -25,9 +25,9 @@ for i in range(total_points):
     ctrl_vys[i] = y[i // 10]
 
 
-'''
+"""
 2. Generate 100 random samples, then, random scan the samples one by one. 
-'''
+"""
 ctrl_vxs = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_points), 4)
 ctrl_vys = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_points), 4)
 # print(ctrl_vxs)
@@ -56,12 +56,11 @@ plt.plot(ctrl_vxs, ctrl_vys, '*-')
 # np.save('original_y.npy', ctrl_vys)
 
 
-'''
+"""
 3. Using the 2opt method: Route finder to get the optimized scanning routes.
     First, construct the distance matrix. In our case, this is a symmetric distance matrix. DistMtx = DistMtx^T.
     Using the chebyshev distance to measure the distance of two 2D points. distance = Max(|x1 - x2|, |y1-y2|).
-'''
-
+"""
 real_data = np.array([ctrl_vxs, ctrl_vys]).transpose()
 method_1 = 'euclidean'
 method_2 = 'chebyshev'
@@ -106,11 +105,8 @@ plt.xticks(np.linspace(-5, 5, 11))
 plt.yticks(np.linspace(-5, 5, 11))
 plt.plot(resort_data_x, resort_data_y, '*-')
 
-'''
-Construct the google solver for TSP.
-'''
 
-
+### Construct the google solver for TSP.
 class GoogleSolver:
     """
     4. Construct the GoogleSolver based on ortools for solving constrain optimization problems.
@@ -198,9 +194,9 @@ class GoogleSolver:
 
 
 if __name__ == '__main__':
-    '''
+    """
     4. This method using Google solver to optimize the routes. The distance matrix is the same as RouteFinder.
-    '''
+    """
     google_routes_solver = GoogleSolver()
     travel_index = google_routes_solver.main()
     resort_data_x1 = np.zeros(total_points)
