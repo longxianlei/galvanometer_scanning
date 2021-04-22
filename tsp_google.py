@@ -93,8 +93,8 @@ def print_solution(manager, routing, solution):
         index = solution.Value(routing.NextVar(index))
         route_distance += routing.GetArcCostForVehicle(previous_index, index, 0)
     plan_output += ' {}\n'.format(manager.IndexToNode(index))
-    print(plan_output)
     plan_output += 'Objective: {}m\n'.format(route_distance)
+    print(plan_output)
 
 
 def main():
@@ -110,7 +110,7 @@ def main():
     routing = pywrapcp.RoutingModel(manager)
 
     distance_matrix = compute_euclidean_distance_matrix(data['locations'])
-    print(distance_matrix)
+    # print(distance_matrix)
 
     def distance_callback(from_index, to_index):
         """Returns the distance between the two nodes."""
@@ -127,21 +127,20 @@ def main():
     # Setting first solution heuristic.
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = (
-        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+        # routing_enums_pb2.FirstSolutionStrategy.LOCAL_CHEAPEST_INSERTION
+        )
 
     # Add some fun. Just for test. Eason. 04-21.
-    # Using Local searching.
-    # There are other function or method to solve the search processing. We can also add some constraint to the method.
+    # We can also using Local searching. Like SIMULATED_ANNEALING, GENERIC_TABU_SEARCH, etc.
+    # There are other function or method to solve the search processing. We also add some constraints on it.
 
     # search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     # search_parameters.local_search_metaheuristic = (
     #     routing_enums_pb2.LocalSearchMetaheuristic.SIMULATED_ANNEALING
     # )
-    # search_parameters.time_limit.seconds = 2
+    # search_parameters.time_limit.seconds = 5
     # search_parameters.log_search = True
-    # routing_enums_pb2.FirstSolutionStrategy.LOCAL_CHEAPEST_INSERTION()
-    # search_parameters.time_limit.seconds = 10
-    # search_parameters.local_search_metaheuristic = (routing_enums_pb2.LocalSearchMetaheuristic.SIMULATED_ANNEALING)
 
     # Solve the problem.
     solution = routing.SolveWithParameters(search_parameters)
