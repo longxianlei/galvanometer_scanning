@@ -11,7 +11,7 @@ np.random.seed(0)
 total_points = 100
 
 """
-1. Generate the X-ordered scanning routines.
+1. Generate the X-ordered scanning routes.
 """
 x = np.arange(-4.5, 5, 1.0)
 y = np.arange(-4.5, 5, 1.0)
@@ -61,25 +61,24 @@ plt.plot(ctrl_vxs, ctrl_vys, '*-')
     First, construct the distance matrix. In our case, this is a symmetric distance matrix. DistMtx = DistMtx^T.
     Using the chebyshev distance to measure the distance of two 2D points. distance = Max(|x1 - x2|, |y1-y2|).
 """
-real_data = np.array([ctrl_vxs, ctrl_vys]).transpose()
 method_1 = 'euclidean'
 method_2 = 'chebyshev'
-chebyshev_dist_real = cdist(real_data, real_data, metric=method_2)
+chebyshev_dist_real = cal_distance(ctrl_vxs, ctrl_vys)
 chebyshev_dist_real = np.round(chebyshev_dist_real*1000)
 ab_citi_names = []
 for i in range(total_points):
     ab_citi_names.append(i)
 dist_mat = chebyshev_dist_real
-# Instantiate an object called route_finded, given the distance matrix, city names, iterations.
-route_finded = RouteFinder(dist_mat, ab_citi_names, iterations=1)
+# Instantiate an object called route_found, given the distance matrix, city names, iterations.
+route_found = RouteFinder(dist_mat, ab_citi_names, iterations=1)
 # start_counter = time.perf_counter()
-best_distance, best_route = route_finded.solve()
+best_distance, best_route = route_found.solve()
 # end_counter = time.perf_counter()
 # print("The total time is (ms): ", (end_counter - start_counter) * 1000)
 print(best_distance)
 print(best_route)
 
-# The manual calculated of the routines' distance. Which is the same as the solver returned.
+# This is our manual calculation of the routines' distance. Which is the same as the solver returned.
 # sum_dist = 0
 # for i in range(total_points-1):
 #     sum_dist += chebyshev_dist_real[best_route[i]][best_route[i+1]]
@@ -106,7 +105,7 @@ plt.yticks(np.linspace(-5, 5, 11))
 plt.plot(resort_data_x, resort_data_y, '*-')
 
 
-### Construct the google solver for TSP.
+# Construct the google solver for TSP.
 class GoogleSolver:
     """
     4. Construct the GoogleSolver based on ortools for solving constrain optimization problems.
