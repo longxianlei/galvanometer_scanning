@@ -10,3 +10,6 @@ Reform the code blocks.
 We have 3 kind of scanning routes planning algorithms,
 which includes ortools based solver, 2-opt solver, basic sort algorithm.
 Besides, we can specify the start and end points of the route planning algorithm.
+
+![scan mode](scan_mode.png)
+We have Snake scan, Raster scan, and other scan based algorithm.
