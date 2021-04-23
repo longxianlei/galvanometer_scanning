@@ -36,7 +36,7 @@ dist_mat = cal_distance(ctrl_vxs, ctrl_vys)
 total_dist = 0
 for k in range(total_points - 1):
     total_dist += dist_mat[k][k + 1]
-print(total_dist)
+print("random scan distance: ", total_dist)
 
 # plot the figure.
 plt.figure('random scan')
@@ -75,8 +75,8 @@ route_found = RouteFinder(dist_mat, ab_citi_names, iterations=1)
 best_distance, best_route = route_found.solve()
 # end_counter = time.perf_counter()
 # print("The total time is (ms): ", (end_counter - start_counter) * 1000)
-print(best_distance)
-print(best_route)
+print("2opt total distance:", best_distance/1000.0)
+print("2opt best route: ",  best_route)
 
 # This is our manual calculation of the routines' distance. Which is the same as the solver returned.
 # sum_dist = 0
@@ -91,7 +91,7 @@ for i in range(total_points):
     resort_data_y[i] = ctrl_vys[best_route[i]]
 
 # plot the scan routes of routefinder.
-plt.figure('2opt route finder scan.')
+plt.figure('2opt route finder scan')
 # 设置坐标轴的取值范围;
 plt.xlim((-5, 5))
 plt.ylim((-5, 5))
@@ -123,7 +123,7 @@ class GoogleSolver:
     @staticmethod
     def print_solution(manager, routing, solution):
         """Prints solution on console."""
-        print('Objective: {} miles'.format(solution.ObjectiveValue()))
+        # print('Objective: {} miles'.format(solution.ObjectiveValue()))
         index = routing.Start(0)
         plan_output = 'Route for vehicle 0:\n'
         route_distance = 0
@@ -135,9 +135,8 @@ class GoogleSolver:
             index = solution.Value(routing.NextVar(index))
             route_distance += routing.GetArcCostForVehicle(previous_index, index, 0)
         plan_output += ' {}\n'.format(manager.IndexToNode(index))
-        print(plan_output)
-        print(result_index)
         plan_output += 'Route distance: {}miles\n'.format(route_distance)
+        print(plan_output)
         return result_index
 
     def main(self):
@@ -211,7 +210,11 @@ if __name__ == '__main__':
     sum_dist_2 = 0
     for i in range(total_points - 1):
         sum_dist_2 += chebyshev_dist_real[travel_index[i]][travel_index[i + 1]]
-    print("my_self_cal: ", np.round(sum_dist_2/1000, 4))
+    print("Google solver distance: ", np.round(sum_dist_2/1000, 4))
+    # The Google Solver output the length of route is larger than the manual calculation, cause it connect the
+    # last end point to the start point, which is $ routes + distance[end_point][start_point] $.
+    # last_count = sum_dist_2 + chebyshev_dist_real[travel_index[99]][0]
+    # print("the last count: ", last_count)
     plt.figure('google scan routes')
     # 设置坐标轴的取值范围;
     plt.xlim((-5, 5))
