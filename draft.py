@@ -22,11 +22,11 @@ def cal_distance(points_x, points_y, metric='chebyshev'):
     :return: cal_distance.
     """
     data_array = np.array([points_x, points_y]).transpose()
-    print(metric)
+    # print(metric)
     return cdist(data_array, data_array, metric=metric)
 
 
-def gen_scan_order(original_x, original_y, sc_order='X', separate_grid=10, metric='chebyshev'):
+def gen_scan_order(original_x, original_y, sc_order='X', total_points=10, separate_grid=10, metric='chebyshev'):
     """
     Generate the scan order of the galvanometer scanning route. X-based, Y-based scan mode.
     :param original_x:
@@ -76,7 +76,7 @@ def gen_scan_order(original_x, original_y, sc_order='X', separate_grid=10, metri
     return post_scan_x, post_scan_y, total_dist
 
 
-def two_opt_solver(original_x, original_y, dist_matrix):
+def two_opt_solver(original_x, original_y, dist_matrix, total_points):
     """
     2-opt solver, exchange the 2 sample points when dist[1,3] + dist[2,4] < dist[1,2] + dist[3,4].
     :param original_x:
@@ -108,7 +108,7 @@ class TSPSolverGoogle:
     Using the Google ortools to solve the TSP problem.
     One can specify the start, end points.
     """
-    def __init__(self, original_x, original_y, dist_matrix, is_defined_points=False):
+    def __init__(self, original_x, original_y, dist_matrix, total_points, is_defined_points=False):
         """
         :param original_x:
         :param original_y:
@@ -121,6 +121,7 @@ class TSPSolverGoogle:
         self.defined_points = is_defined_points
         self.resort_data_x1 = np.zeros(total_points)
         self.resort_data_y1 = np.zeros(total_points)
+        self.total_points = total_points
         self.travel_dist = 0
 
     def create_data_model(self):
@@ -201,19 +202,19 @@ class TSPSolverGoogle:
 
         # Compute the final distance and scan index.
         if self.defined_points:
-            for i in range(total_points - 1):
+            for i in range(self.total_points - 1):
                 self.resort_data_x1[i] = self.original_x[final_index[i]]
                 self.resort_data_y1[i] = self.original_y[final_index[i]]
-                if i < total_points-2:
+                if i < self.total_points-2:
                     self.travel_dist += self.distance_matrix[final_index[i]][final_index[i + 1]]
             self.resort_data_x1[99] = self.original_x[END_POINT]
             self.resort_data_y1[99] = self.original_y[END_POINT]
-            self.travel_dist = self.travel_dist + self.distance_matrix[final_index[total_points-2]][END_POINT]
+            self.travel_dist = self.travel_dist + self.distance_matrix[final_index[self.total_points-2]][END_POINT]
         else:
-            for i in range(total_points):
+            for i in range(self.total_points):
                 self.resort_data_x1[i] = self.original_x[final_index[i]]
                 self.resort_data_y1[i] = self.original_y[final_index[i]]
-                if i < total_points-1:
+                if i < self.total_points-1:
                     self.travel_dist += self.distance_matrix[final_index[i]][final_index[i + 1]]
         # print(resort_data_x1)
         # print(resort_data_y1)
@@ -240,7 +241,7 @@ if __name__ == '__main__':
     is_plot_fig = 1  # plot the figure.
 
     # whether based on the x_ordered_scan/ y_ordered_scan sequence, or just the random generate samples.
-    is_based = 1
+    is_based = 0
     based_scan_axis = 'Y'  # If TRUE, given the based X/Y-ordered-scan. Snake scan order.
     split_space = 10  # Split the scan space into n row/column. Then, process the points based on the separate space.
 
@@ -251,19 +252,19 @@ if __name__ == '__main__':
 
     distance_matrix = cal_distance(ctrl_vxs, ctrl_vys, metric=method_2)
     scaled_distance_matrix = distance_matrix * 1000
-    after_x, after_y, cal_dist = gen_scan_order(ctrl_vxs, ctrl_vys, sc_order=based_scan_axis,
+    after_x, after_y, cal_dist = gen_scan_order(ctrl_vxs, ctrl_vys, sc_order=based_scan_axis, total_points=total_points,
                                                 separate_grid=split_space, metric=method_2)
     if not is_based:
-        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(ctrl_vxs, ctrl_vys, scaled_distance_matrix)
-        google_solver = TSPSolverGoogle(ctrl_vxs, ctrl_vys, scaled_distance_matrix,
+        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(ctrl_vxs, ctrl_vys, scaled_distance_matrix, total_points)
+        google_solver = TSPSolverGoogle(ctrl_vxs, ctrl_vys, scaled_distance_matrix, total_points,
                                         is_defined_points=is_defined_start_end)
         google_x, google_y, google_dist = google_solver.solve_travel()
         print(google_dist)
     else:
         distance_matrix1 = cal_distance(after_x, after_y, metric=method_2)
         scaled_distance_matrix1 = distance_matrix1 * 1000
-        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(after_x, after_y, scaled_distance_matrix1)
-        google_solver = TSPSolverGoogle(after_x, after_y, scaled_distance_matrix1,
+        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(after_x, after_y, scaled_distance_matrix1, total_points)
+        google_solver = TSPSolverGoogle(after_x, after_y, scaled_distance_matrix1, total_points,
                                         is_defined_points=is_defined_start_end)
         google_x, google_y, google_dist = google_solver.solve_travel()
         # print("The 2opt method's distance: ", two_opt_dist)
