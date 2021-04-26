@@ -10,11 +10,14 @@ np.random.seed(0)
 # First, compare x-axis based sorted-scan and optimized google solver-scan.
 # The metric include statistical average length of points, average scan time of points.
 
-sample_range = [10, 51]  # The sample ranges. From 10 to 1000.
+sample_range = [10, 11]  # The sample ranges. From 10 to 1000.
 sample_step = 10  # The step of each sampling.
 avg_routes_axis = []
 avg_routes_2opt = []
 avg_routes_google = []
+axis_based_scan_routes = {'x': [], 'y': []}
+two_opt_scan_routes = {'x': [], 'y': []}
+google_scan_routes = {'x': [], 'y': []}
 
 for sample_points in range(sample_range[0], sample_range[1], sample_step):
     # method_1 = 'euclidean' chebyshev
@@ -25,7 +28,7 @@ for sample_points in range(sample_range[0], sample_range[1], sample_step):
     # ctrl_vxs = np.load('original_x.npy')
     # ctrl_vys = np.load('original_y.npy')
 
-    is_plot_fig = False  # plot the figure.
+    is_plot_fig = True  # plot the figure.
 
     # whether based on the x_ordered_scan/ y_ordered_scan sequence, or just the random generate samples.
     is_based = 0
@@ -53,9 +56,13 @@ for sample_points in range(sample_range[0], sample_range[1], sample_step):
         google_solver = TSPSolverGoogle(after_x, after_y, scaled_distance_matrix1, sample_points,
                                         is_defined_points=is_defined_start_end)
         google_x, google_y, google_dist = google_solver.solve_travel()
-        # print("The 2opt method's distance: ", two_opt_dist)
-        # print("The google method distance: ", google_dist)
     print('----------------')
+    axis_based_scan_routes['x'].append(after_x)
+    axis_based_scan_routes['y'].append(after_y)
+    two_opt_scan_routes['x'].append(two_opt_x)
+    two_opt_scan_routes['y'].append(two_opt_y)
+    google_scan_routes['x'].append(google_x)
+    google_scan_routes['y'].append(google_y)
     avg_routes_axis.append(np.round(cal_dist/sample_points, 4))
     avg_routes_2opt.append(np.round(two_opt_dist/sample_points, 4))
     avg_routes_google.append(np.round(google_dist/sample_points, 4))
@@ -76,7 +83,8 @@ for sample_points in range(sample_range[0], sample_range[1], sample_step):
         plt.xticks(np.linspace(-5, 5, 11))
         plt.yticks(np.linspace(-5, 5, 11))
         plt.plot(after_x, after_y, '*-')
-        # plt.savefig('./path_optimize/Y_based_solver_scan_justtest.jpg')
+        plt.savefig('./experiment_results/' + str(based_scan_axis) + '_based_solver_scan_' + str(sample_points) + '.jpg')
+        plt.clf()
 
         """
         plot 2 opt solver scan order.
@@ -93,7 +101,8 @@ for sample_points in range(sample_range[0], sample_range[1], sample_step):
         plt.xticks(np.linspace(-5, 5, 11))
         plt.yticks(np.linspace(-5, 5, 11))
         plt.plot(two_opt_x, two_opt_y, '*-')
-        # plt.savefig('./path_optimize/2opt_solver_scan_start_justtest.jpg')
+        plt.savefig('./experiment_results/2opt_solver_scan_' + str(sample_points) + '.jpg')
+        plt.clf()
 
         """
         plot google solver scan order.
@@ -112,15 +121,17 @@ for sample_points in range(sample_range[0], sample_range[1], sample_step):
         plt.plot(google_x, google_y, '*-')
         plt.plot(google_x[0], google_y[0], 'r*')
         plt.plot(google_x[-1], google_y[-1], 'r*')
-
         # plt.plot(ctrl_vxs[START_POINT], ctrl_vys[START_POINT], 'b^')
         # plt.plot(ctrl_vxs[END_POINT], ctrl_vys[END_POINT], 'm^')
-        # plt.savefig('./path_optimize/google_solver_scan_justtest.jpg')
-        plt.show()
+        plt.savefig('./experiment_results/google_solver_scan_' + str(sample_points) + '.jpg')
+        # plt.show()
+        plt.clf()
 
-print(avg_routes_axis)
-print(avg_routes_2opt)
-print(avg_routes_google)
+
 np.save('avg_routes_axis.npy', avg_routes_axis)
 np.save('avg_routes_2opt.npy', avg_routes_2opt)
 np.save('avg_routes_google.npy', avg_routes_google)
+
+np.save('axis_based_scan_routes.npy', axis_based_scan_routes)
+np.save('two_opt_scan_routes.npy', two_opt_scan_routes)
+np.save('google_scan_routes.npy', google_scan_routes)
