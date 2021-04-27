@@ -8,7 +8,6 @@ from scipy.spatial.distance import cdist
 from py2opt.routefinder import RouteFinder
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
-
 np.random.seed(0)
 
 

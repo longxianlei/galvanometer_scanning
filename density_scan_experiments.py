@@ -183,7 +183,6 @@ def load_scan_routes(routes_name):
     return scan_routes_x, scan_routes_y, scan_nums
 
 
-
 if __name__ == '__main__':
     # The name of the 3 scan routes are: axis_based_scan_routes, two_opt_scan_routes, google_scan_routes
     # self_load = np.load('axis_based_scan_routes.npy', allow_pickle=True)

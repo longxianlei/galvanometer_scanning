@@ -25,7 +25,6 @@ if __name__ == '__main__':
     print(index_max)
     print(index_min)
     print(type(index_min))
-
     a1 = np.array([0,1,1,1])
     a2 = np.array([1,0,0,1])
     a3 = a1+a2
