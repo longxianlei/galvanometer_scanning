@@ -65,4 +65,3 @@ plt.legend(loc='best', fontsize=15)
 plt.savefig('./experiment_results/4_methods_avg_routes_orig_test.jpg')
 plt.show()
 
-
