@@ -52,6 +52,7 @@ if __name__ == '__main__':
     ctrl_vxs = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_points), 4)
     ctrl_vys = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_points), 4)
 
+
     plt.figure(2)
     # 设置坐标轴的取值范围;
     plt.xlim((-5, 5))
