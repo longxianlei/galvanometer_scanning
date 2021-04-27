@@ -29,6 +29,7 @@ def cal_distance(points_x, points_y, metric='chebyshev'):
 def gen_scan_order(original_x, original_y, sc_order='X', total_points=10, separate_grid=10, metric='chebyshev'):
     """
     Generate the scan order of the galvanometer scanning route. X-based, Y-based scan mode.
+    :param total_points:
     :param original_x:
     :param original_y:
     :param sc_order: X, x-based scan; Y, y-based scan.
@@ -79,6 +80,7 @@ def gen_scan_order(original_x, original_y, sc_order='X', total_points=10, separa
 def two_opt_solver(original_x, original_y, dist_matrix, total_points):
     """
     2-opt solver, exchange the 2 sample points when dist[1,3] + dist[2,4] < dist[1,2] + dist[3,4].
+    :param total_points:
     :param original_x:
     :param original_y:
     :param dist_matrix:
@@ -108,8 +110,10 @@ class TSPSolverGoogle:
     Using the Google ortools to solve the TSP problem.
     One can specify the start, end points.
     """
-    def __init__(self, original_x, original_y, dist_matrix, total_points, is_defined_points=False):
+    def __init__(self, original_x, original_y, dist_matrix, total_points, is_defined_points=False,
+                 start_point=0, end_point=0):
         """
+        :param total_points:
         :param original_x:
         :param original_y:
         :param dist_matrix:
@@ -121,6 +125,8 @@ class TSPSolverGoogle:
         self.defined_points = is_defined_points
         self.resort_data_x1 = np.zeros(total_points)
         self.resort_data_y1 = np.zeros(total_points)
+        self.start_point = start_point
+        self.end_point = end_point
         self.total_points = total_points
         self.travel_dist = 0
 
@@ -130,8 +136,8 @@ class TSPSolverGoogle:
         data['distance_matrix'] = self.distance_matrix
         data['num_vehicles'] = 1
         if self.defined_points:
-            data['starts'] = [START_POINT]
-            data['ends'] = [END_POINT]
+            data['starts'] = [self.start_point]
+            data['ends'] = [self.end_point]
         else:
             data['depot'] = 0  # start at 0 index of the dataset.
         return data
@@ -207,9 +213,9 @@ class TSPSolverGoogle:
                 self.resort_data_y1[i] = self.original_y[final_index[i]]
                 if i < self.total_points-2:
                     self.travel_dist += self.distance_matrix[final_index[i]][final_index[i + 1]]
-            self.resort_data_x1[99] = self.original_x[END_POINT]
-            self.resort_data_y1[99] = self.original_y[END_POINT]
-            self.travel_dist = self.travel_dist + self.distance_matrix[final_index[self.total_points-2]][END_POINT]
+            self.resort_data_x1[self.total_points-1] = self.original_x[self.end_point]
+            self.resort_data_y1[self.total_points-1] = self.original_y[self.end_point]
+            self.travel_dist = self.travel_dist + self.distance_matrix[final_index[self.total_points-2]][self.end_point]
         else:
             for i in range(self.total_points):
                 self.resort_data_x1[i] = self.original_x[final_index[i]]
@@ -232,9 +238,9 @@ if __name__ == '__main__':
     # method_1 = 'euclidean' chebyshev
     method_2 = 'chebyshev'
 
-    total_points = 100
-    ctrl_vxs = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_points), 4)
-    ctrl_vys = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_points), 4)
+    total_samples = 100
+    ctrl_vxs = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_samples), 4)
+    ctrl_vys = np.round(np.random.uniform(low=-5.0, high=5.0, size=total_samples), 4)
     # ctrl_vxs = np.load('original_x.npy')
     # ctrl_vys = np.load('original_y.npy')
 
@@ -248,24 +254,26 @@ if __name__ == '__main__':
     # whether specify the start/end point. If TRUE, given the two determined points.
     is_defined_start_end = False
     START_POINT = 0
-    END_POINT = 77
+    END_POINT = 22
 
     distance_matrix = cal_distance(ctrl_vxs, ctrl_vys, metric=method_2)
     scaled_distance_matrix = distance_matrix * 1000
-    after_x, after_y, cal_dist = gen_scan_order(ctrl_vxs, ctrl_vys, sc_order=based_scan_axis, total_points=total_points,
+    after_x, after_y, cal_dist = gen_scan_order(ctrl_vxs, ctrl_vys, sc_order=based_scan_axis, total_points=total_samples,
                                                 separate_grid=split_space, metric=method_2)
     if not is_based:
-        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(ctrl_vxs, ctrl_vys, scaled_distance_matrix, total_points)
-        google_solver = TSPSolverGoogle(ctrl_vxs, ctrl_vys, scaled_distance_matrix, total_points,
-                                        is_defined_points=is_defined_start_end)
+        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(ctrl_vxs, ctrl_vys, scaled_distance_matrix, total_samples)
+        google_solver = TSPSolverGoogle(ctrl_vxs, ctrl_vys, scaled_distance_matrix, total_samples,
+                                        is_defined_points=is_defined_start_end,
+                                        start_point=START_POINT, end_point=END_POINT)
         google_x, google_y, google_dist = google_solver.solve_travel()
         print(google_dist)
     else:
         distance_matrix1 = cal_distance(after_x, after_y, metric=method_2)
         scaled_distance_matrix1 = distance_matrix1 * 1000
-        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(after_x, after_y, scaled_distance_matrix1, total_points)
-        google_solver = TSPSolverGoogle(after_x, after_y, scaled_distance_matrix1, total_points,
-                                        is_defined_points=is_defined_start_end)
+        two_opt_x, two_opt_y, two_opt_dist = two_opt_solver(after_x, after_y, scaled_distance_matrix1, total_samples)
+        google_solver = TSPSolverGoogle(after_x, after_y, scaled_distance_matrix1, total_samples,
+                                        is_defined_points=is_defined_start_end,
+                                        start_point=START_POINT, end_point=END_POINT)
         google_x, google_y, google_dist = google_solver.solve_travel()
         # print("The 2opt method's distance: ", two_opt_dist)
         # print("The google method distance: ", google_dist)
