@@ -1,6 +1,6 @@
 # Galvanometer Scanning
 All plot function to plot the scan route of samples.
-All code about a galvanomirror scanning, route planning, sampling, data analysis and feedback control.
+All code about a galvanomirror scanning, ``route planning, sampling, data analysis and feedback control.
 
 Reform the code blocks. 
 1. We can specify the start and end points. 
@@ -13,3 +13,6 @@ Besides, we can specify the start and end points of the route planning algorithm
 
 ![scan mode](scan_mode.png)
 We have Snake scan, Raster scan, and other scan based algorithm.
+
+Now, we add some plot function, which can plot the samples-FPS, samples-Speed, samples-scan_time comparison of our 4 
+methods. Include grid-scanning, 2opt scanning, google scanning, defined start/end points scanning.
