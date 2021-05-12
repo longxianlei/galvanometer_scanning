@@ -74,7 +74,7 @@ def read_processed_targets(results_path):
 
 
 if __name__ == '__main__':
-    experiments_date = '02_28_detect_result'
+    experiments_date = '02_28_detect_result'  # Change the experiment date to the current date.
     total_rounds = 2
     total_points = 100
     is_send_msg = 1
