@@ -12,6 +12,7 @@ socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
 # socket.connect("tcp://192.168.3.41:5000")
 
+
 def send_ctrl_voltage(series_num, total_nums, index, ctrl_vx, ctrl_vy):
     r"""
     send the control voltage to the motor.
@@ -73,13 +74,13 @@ def read_processed_targets(results_path):
 
 
 if __name__ == '__main__':
-    expe_date = '02_28_detect_result'
+    experiments_date = '02_28_detect_result'
     total_rounds = 2
     total_points = 100
     is_send_msg = 1
     is_save_fig = 0
-    # if not os.path.exists(r'C:/RapidEye/record/'+expe_date):
-    #     os.mkdir('C:/RapidEye/record/'+expe_date)
+    # if not os.path.exists(r'C:/RapidEye/record/'+experiments_date):
+    #     os.mkdir('C:/RapidEye/record/'+experiments_date)
     plot_vxs = []
     plot_vys = []
     process_times = []
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     # print(plot_vxs)
     # print(plot_vxs[1])
     if is_save_fig:
-        detected_points_x, detected_points_y = read_processed_targets('C:/RapidEye/record/'+expe_date)
+        detected_points_x, detected_points_y = read_processed_targets('C:/RapidEye/record/'+experiments_date)
         # print(detected_points_x, detected_points_y)
         for i in range(total_rounds):
             plt.figure()
@@ -143,6 +144,6 @@ if __name__ == '__main__':
             if is_send_msg:
                 plt.plot(plot_vxs[i], - plot_vys[i], '*')
             plt.plot(detected_points_x, detected_points_y, 'r.')
-            plt.savefig('C:/RapidEye/record/'+expe_date+'/'+'ttp'+str(total_points)+'_round_'+str(i)+'_'
-                        + expe_date+'.jpg')
+            plt.savefig('C:/RapidEye/record/'+experiments_date+'/'+'ttp'+str(total_points)+'_round_'+str(i)+'_'
+                        + experiments_date+'.jpg')
             plt.close()
