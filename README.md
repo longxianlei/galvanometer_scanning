@@ -16,3 +16,9 @@ We have Snake scan, Raster scan, and other scan based algorithm.
 
 Now, we add some plot function, which can plot the samples-FPS, samples-Speed, samples-scan_time comparison of our 4 
 methods. Include grid-scanning, 2opt scanning, google scanning, defined start/end points scanning.
+
+### 2021-05-12
+Add some basic functions, include Number of samples vs scanning speed.
+Like NumOfSamples vs Average routes, NumOfSamples vs FPS, NumOfSamples vs Average Scanning time, 
+and NumOfSamples vs Total Scanning Time.
+Reform the code.
