@@ -33,6 +33,7 @@ def assign_samples(total_samples, all_detections_objs, remain_fraction):
     filtered_conf = []
     sampling_x_axis = []
     sampling_y_axis = []
+    sampling_centre_list = []
     for obj_index, obj_conf in enumerate(all_detections_objs['confidence']):
         if obj_conf > conf_threshold:
             total_weights += obj_conf
@@ -52,23 +53,8 @@ def assign_samples(total_samples, all_detections_objs, remain_fraction):
         print(sampling_nums)
         sampling_centre_index = filtered_objs[i]
         sampling_centre = all_detections_objs['centre'][sampling_centre_index]
+        sampling_centre_list.append(sampling_centre)
         sampling_x_radius = np.round(np.random.uniform(low=-radius, high=radius, size=sampling_nums), 4)
-
-        # print(sampling_x_radius)
-        # print(sampling_centre)
-        # print(max((sampling_x_radius+sampling_centre[0]).all(),  5))
-        #
-        # batch_x_axis = sampling_x_radius + sampling_centre[0]
-
-        # batch_clip = np.clip(sampling_x_radius + sampling_centre[0], -5, 5)
-        # print(batch_clip)
-
-        # print(batch_x_axis)
-        # batch_x_axis[batch_x_axis > 5] = 5
-        # batch_x_axis[batch_x_axis < -5] = -5
-        # print(batch_x_axis)
-        # print((sampling_x_radius+sampling_centre[0])[(sampling_x_radius+sampling_centre[0])>5]= 5))
-
         sampling_x_axis.append(np.clip(sampling_x_radius+sampling_centre[0], -5, 5))
 
         # sampling_x_axis.append(min(max(sampling_x_radius + sampling_centre[0], -5), 5))
@@ -81,51 +67,86 @@ def assign_samples(total_samples, all_detections_objs, remain_fraction):
     # sampling_x_axis.append(np.round(np.random.uniform(low=-5, high=5, size=int(total_samples-num_totals)), 4))
     # sampling_y_axis.append(np.round(np.random.uniform(low=-5, high=5, size=int(total_samples-num_totals)), 4))
     global_points = int(total_samples-np.sum(assigned_nums))
-    return np.hstack(sampling_x_axis), np.hstack(sampling_y_axis), filtered_objs, global_points
+    # print(sampling_centre_list)
+
+    # print(np.vstack(sampling_centre_list))
+    return np.hstack(sampling_x_axis), np.hstack(sampling_y_axis), np.vstack(sampling_centre_list), filtered_objs, global_points
 
 
 def assign_nearby_samples():
     pass
 
 
-# samples = np.array([3, 12, 6])
-# total_weights = np.sum(samples)
-# normalized_data = samples/total_weights
-# new_samples = np.round(100*normalized_data)
-# print(new_samples)
+if __name__ == '__main__':
+    all_detections_objs = {'centre': [[4.8, 1.45], [0.13, -2.1], [-3.33, 3.05], [-1.45, 1.22], [3.13, -1.54]],
+                                      'confidence': [0.85, 0.24, 0.51, 0.49, 0.76]}
 
-all_detections_objs = {'centre': [[4.8, 1.45], [0.13, -2.1], [-3.33, 3.05], [-1.45, 1.22], [3.13, -1.54]],
-                                  'confidence': [0.85, 0.24, 0.51, 0.49, 0.76]}
-# print(all_detections_objs['centre'][0][0])
-# print(all_detections_objs['confidence'][0])
+    plt.figure('resampling points')
+    # 设置坐标轴的取值范围;
+    plt.xlim((-5.5, 5.5))
+    plt.ylim((-5.5, 5.5))
+    # 设置坐标轴的label;
+    plt.xlabel('X voltage')
+    plt.ylabel('Y voltage')
+    plt.title('The distribution of resampling points')
+    # plt.title('The distribution of original points')
+    # 设置x坐标轴刻度;
+    plt.xticks(np.linspace(-5, 5, 11))
+    plt.yticks(np.linspace(-5, 5, 11))
+    # plt.plot(np.array(all_detections_objs['centre'])[:, 0], np.array(all_detections_objs['centre'])[:, 1], '*',
+    #          label='original_points')
+    #
+    # re_sample_x, re_sample_y, filtered_objs, global_points = assign_samples(total_samples=20,
+    #                                                                         all_detections_objs=all_detections_objs,
+    #                                                                         remain_fraction=0.1)
+    # print('global_points: ', global_points)
+    # global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    # global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    # plt.plot(global_points_x, global_points_y, 'o', label='global_points')
+    #
+    # plt.plot(re_sample_x, re_sample_y, '^', label='resampling points')
+    # plt.legend(loc='best', )
+    # plt.show()
 
+    # orig_x = np.reshape(np.load('../path_optimize/google_scan_x_start.npy'), (-1, 1))
+    # orig_y = np.reshape(np.load('../path_optimize/google_scan_y_start.npy'), (-1, 1))
+    orig_x = np.reshape(np.load('../path_optimize/original_x.npy'), (-1, 1))
+    orig_y = np.reshape(np.load('../path_optimize/original_y.npy'), (-1, 1))
+    num_point = len(orig_y)
+    print(num_point)
+    # print(orig_x.shape)
+    # print(orig_y.shape)
+    # np.reshape(orig_x, (-1, 1))
+    # np.reshape(orig_y, (-1, 1))
+    # print(np.reshape(orig_x, (-1, 1)))
+    # print(np.reshape(orig_y, (-1, 1)))
+    data_total = np.concatenate((orig_x, orig_y), axis=1)
+    # print(data_total)
+    above_conf = int(num_point*0.1)
+    below_conf = num_point - above_conf
+    print(above_conf, below_conf)
+    generate_conf1 = np.round(np.random.uniform(low=0.4, high=1, size=above_conf), 4)
+    generate_conf2 = np.round(np.random.uniform(low=0.0, high=0.5, size=below_conf), 4)
+    # generate_conf = np.round(np.random.normal(loc=0.0, scale=1.0, size=num_point), 4)
+    generate_conf = np.concatenate((generate_conf1, generate_conf2), axis=0)
+    print(generate_conf)
+    all_detections_objs_original = {'centre': data_total, 'confidence': generate_conf}
 
-plt.figure('resampling points')
-# 设置坐标轴的取值范围;
-plt.xlim((-5.5, 5.5))
-plt.ylim((-5.5, 5.5))
-# 设置坐标轴的label;
-plt.xlabel('X voltage')
-plt.ylabel('Y voltage')
-plt.title('The distribution of resampling points')
-# 设置x坐标轴刻度;
-plt.xticks(np.linspace(-5, 5, 11))
-plt.yticks(np.linspace(-5, 5, 11))
-plt.plot(np.array(all_detections_objs['centre'])[:, 0], np.array(all_detections_objs['centre'])[:, 1], '*',
-         label='original_points')
+    # all_detections_objs1 = {'centre': [[4.8, 1.45], [0.13, -2.1], [-3.33, 3.05], [-1.45, 1.22], [3.13, -1.54]],
+    #                                       'confidence': [0.85, 0.24, 0.51, 0.49, 0.76]}
 
-
-# print(np.array(all_detections_objs['centre'])[:, 0])
-
-re_sample_x, re_sample_y, filtered_objs, global_points = assign_samples(total_samples=20,
-                                                                        all_detections_objs=all_detections_objs,
-                                                                        remain_fraction=0.1)
-print('global_points: ', global_points)
-global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-plt.plot(global_points_x, global_points_y, 'o', label='global_points')
-
-plt.plot(re_sample_x, re_sample_y, '^', label='resampling points')
-plt.legend(loc='best', )
-plt.show()
-
+    # plt.plot(np.array(all_detections_objs_original['centre'])[:, 0], np.array(all_detections_objs_original['centre'])[:, 1], '*',
+    #          label='original_points')
+    # plt.savefig('original_distribution.jpg')
+    re_sample_x, re_sample_y, sampling_centers, filtered_objs, global_points = assign_samples(total_samples=num_point,
+                                                                            all_detections_objs=all_detections_objs_original,
+                                                                            remain_fraction=0.1)
+    print(filtered_objs)
+    global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    plt.plot(global_points_x, global_points_y, 'mo', label='global_points')
+    plt.plot(re_sample_x, re_sample_y, 'g^', label='resampling points')
+    plt.plot(sampling_centers[:, 0], sampling_centers[:, 1], 'r*', label='original')
+    plt.legend(loc='best')
+    plt.savefig('resampling_points.jpg')
+    plt.show()

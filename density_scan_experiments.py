@@ -185,10 +185,10 @@ def load_scan_routes(routes_name):
 if __name__ == '__main__':
     # The name of the 3 scan routes are: axis_based_scan_routes, two_opt_scan_routes, google_scan_routes
     # self_load = np.load('axis_based_scan_routes.npy', allow_pickle=True)
-    axis_scan_x, axis_scan_y, axis_scan_nums = load_scan_routes('axis_based_scan_routes.npy')
-    topt_scan_x, topt_scan_y, topt_scan_nums = load_scan_routes('two_opt_scan_routes.npy')
-    google_scan_x, google_scan_y, google_scan_nums = load_scan_routes('google_scan_routes.npy')
-    own_scan_x, own_scan_y, own_scan_nums = load_scan_routes('defined_points_scan_routes.npy')
+    axis_scan_x, axis_scan_y, axis_scan_nums = load_scan_routes('./generate_dataset/axis_based_scan_routes.npy')
+    topt_scan_x, topt_scan_y, topt_scan_nums = load_scan_routes('./generate_dataset/two_opt_scan_routes.npy')
+    google_scan_x, google_scan_y, google_scan_nums = load_scan_routes('./generate_dataset/google_scan_routes.npy')
+    own_scan_x, own_scan_y, own_scan_nums = load_scan_routes('./generate_dataset/defined_points_scan_routes.npy')
 
     # print(axis_scan_nums, topt_scan_nums, google_scan_nums, own_scan_nums)
     print(google_scan_x)
