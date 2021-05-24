@@ -150,3 +150,4 @@ if __name__ == '__main__':
     plt.legend(loc='best')
     plt.savefig('resampling_points.jpg')
     plt.show()
+
