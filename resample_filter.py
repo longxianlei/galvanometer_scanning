@@ -147,7 +147,7 @@ if __name__ == '__main__':
     plt.plot(np.array(all_detections_objs_original['centre'])[:, 0],
              np.array(all_detections_objs_original['centre'])[:, 1],
              '*', label='original_points')
-    # plt.savefig('original_distribution.jpg')
+    # plt.savefig('original_data_distribution.jpg')
     print(all_detections_objs_original)
     re_sample_x, re_sample_y, sampling_centers, \
         filtered_objs, global_points = assign_samples(total_samples=num_point,
