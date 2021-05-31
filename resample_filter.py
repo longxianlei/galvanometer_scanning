@@ -1,7 +1,7 @@
-import random
 import numpy as np
 import matplotlib.pyplot as plt
 np.random.seed(0)
+
 """
 This part is intended to solve the sampling based re_sample method. When there are objects in the sample image, 
 we should consider sampling/pay more attention in the neighborhood of this sample. 
@@ -86,11 +86,23 @@ def assign_nearby_samples():
 
 if __name__ == '__main__':
 
-    # Part 1. Using the designed samples here to construct the basic model.
+    """
+    Part 1. Using the designed samples here to construct the basic model.
+    *********************************************************************
+    """
     all_detections_objs_toy = {'centre': [[4.8, 1.45], [0.13, -2.1], [-3.33, 3.05], [-1.45, 1.22], [3.13, -1.54]],
                                       'confidence': [0.85, 0.24, 0.51, 0.49, 0.76]}
 
-    plt.figure('resampling points')
+    re_sample_x, re_sample_y, sampling_centers, \
+        filtered_objs, global_points = assign_samples(total_samples=20,
+                                                      all_detections_objs=all_detections_objs_toy,
+                                                      remain_fraction=0.1)
+    print('global_points: ', global_points)
+    global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+
+    # plot the figure.
+    plt.figure('Toys resampling points')
     # 设置坐标轴的取值范围;
     plt.xlim((-5.5, 5.5))
     plt.ylim((-5.5, 5.5))
@@ -98,64 +110,40 @@ if __name__ == '__main__':
     plt.xlabel('X voltage')
     plt.ylabel('Y voltage')
     plt.title('The distribution of resampling points')
-    # plt.title('The distribution of original points')
     # 设置x坐标轴刻度;
     plt.xticks(np.linspace(-5, 5, 11))
     plt.yticks(np.linspace(-5, 5, 11))
-    # plt.plot(np.array(all_detections_objs['centre'])[:, 0], np.array(all_detections_objs['centre'])[:, 1], '*',
-    #          label='original_points')
-    #
 
-    re_sample_x, re_sample_y, sampling_centers, \
-        filtered_objs, global_points = assign_samples(total_samples=20,
-                                                      all_detections_objs=all_detections_objs_toy,
-                                                      remain_fraction=0.1)
-
-    print('global_points: ', global_points)
-    global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-    global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-    plt.plot(global_points_x, global_points_y, 'o', label='global_points')
-    plt.plot(np.array(all_detections_objs_toy['centre'])[:, 0], np.array(all_detections_objs_toy['centre'])[:, 1], '*',
-             label='original points')
-    plt.plot(re_sample_x, re_sample_y, '^', label='resampling points')
+    plt.plot(global_points_x, global_points_y, 'mo', label='global dynamic sensing')
+    plt.plot(np.array(all_detections_objs_toy['centre'])[:, 0],
+             np.array(all_detections_objs_toy['centre'])[:, 1], '*', label='original points')
+    plt.plot(re_sample_x, re_sample_y, 'g^', label='resampling points')
     plt.legend(loc='best', )
     plt.show()
+    # plt.close()
 
+    """
+    Part2, Using the random generate 100 samples to build and refine the model.
+    **************************************************************************
+    """
 
-    # Part2, Using the random generate 100 samples to build and refine the model.
-    # # Load the original data. Using the 100 samples.
+    # Load the original data. Using 100 samples.
     # orig_x = np.reshape(np.load('../path_optimize/google_scan_x_start.npy'), (-1, 1))
     # orig_y = np.reshape(np.load('../path_optimize/google_scan_y_start.npy'), (-1, 1))
     orig_x = np.reshape(np.load('../path_optimize/original_x.npy'), (-1, 1))
     orig_y = np.reshape(np.load('../path_optimize/original_y.npy'), (-1, 1))
     num_point = len(orig_y)
-    print(num_point)
-    # print(orig_x.shape)
-    # print(orig_y.shape)
-    # np.reshape(orig_x, (-1, 1))
-    # np.reshape(orig_y, (-1, 1))
-    # print(np.reshape(orig_x, (-1, 1)))
-    # print(np.reshape(orig_y, (-1, 1)))
-
-    print(orig_x)
+    # print(num_point)
+    # print(orig_x)
     data_total = np.concatenate((orig_x, orig_y), axis=1)
-    # print(data_total)
     above_conf = int(num_point*0.1)
     below_conf = num_point - above_conf
-    generate_conf1 = np.round(np.random.uniform(low=0.4, high=1, size=above_conf), 4)
-    generate_conf2 = np.round(np.random.uniform(low=0.0, high=0.5, size=below_conf), 4)
+    generate_conf1 = np.round(np.random.uniform(low=conf_threshold, high=1.0, size=above_conf), 4)
+    generate_conf2 = np.round(np.random.uniform(low=0.0, high=conf_threshold, size=below_conf), 4)
     # generate_conf = np.round(np.random.normal(loc=0.0, scale=1.0, size=num_point), 4)
     generate_conf = np.concatenate((generate_conf1, generate_conf2), axis=0)
     all_detections_objs_original = {'centre': data_total, 'confidence': generate_conf}
-
-    # all_detections_objs1 = {'centre': [[4.8, 1.45], [0.13, -2.1], [-3.33, 3.05], [-1.45, 1.22], [3.13, -1.54]],
-    #                                       'confidence': [0.85, 0.24, 0.51, 0.49, 0.76]}
-
-    plt.plot(np.array(all_detections_objs_original['centre'])[:, 0],
-             np.array(all_detections_objs_original['centre'])[:, 1],
-             '*', label='original_points')
-    # plt.savefig('original_data_distribution.jpg')
-    print(all_detections_objs_original)
+    # print(all_detections_objs_original)
     re_sample_x, re_sample_y, sampling_centers, \
         filtered_objs, global_points = assign_samples(total_samples=num_point,
                                                       all_detections_objs=all_detections_objs_original,
@@ -165,58 +153,53 @@ if __name__ == '__main__':
     global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
     print('num of global points: ', len(global_points_x))
     global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-    plt.plot(global_points_x, global_points_y, 'mo', label='global_points')
-    plt.plot(re_sample_x, re_sample_y, 'g^', label='resampling_points')
-    plt.plot(sampling_centers[:, 0], sampling_centers[:, 1], 'r*', label='object_points')
+
+    # plot the figure.
+    plt.figure("The 100 samples.")
+    # 设置坐标轴的取值范围;
+    plt.xlim((-5.5, 5.5))
+    plt.ylim((-5.5, 5.5))
+    # 设置坐标轴的label;
+    plt.xlabel('X voltage')
+    plt.ylabel('Y voltage')
+    plt.title('The distribution of resampling points')
+    # 设置x坐标轴刻度;
+    plt.xticks(np.linspace(-5, 5, 11))
+    plt.yticks(np.linspace(-5, 5, 11))
+    plt.plot(np.array(all_detections_objs_original['centre'])[:, 0],
+             np.array(all_detections_objs_original['centre'])[:, 1],
+             '*', label='original points')
+    plt.plot(global_points_x, global_points_y, 'mo', label='global dynamic sensing')
+    plt.plot(re_sample_x, re_sample_y, 'g^', label='resampling points')
+    plt.plot(sampling_centers[:, 0], sampling_centers[:, 1], 'r*', label='object candidates')
     plt.legend(loc='best')
     # plt.savefig('based_on_resampling_points_0.jpg')
     plt.show()
-    plt.close()
+    # plt.close()
 
-    # # Construct the next iteration's data.
-    # new_points_x = np.reshape(np.hstack((re_sample_x, global_points_x)), (-1, 1))
-    # new_points_y = np.reshape(np.hstack((re_sample_y, global_points_y)), (-1, 1))
-    # data_total = np.concatenate((new_points_x, new_points_y), axis=1)
-    # above_conf = int(num_point*0.1)
-    # below_conf = num_point - above_conf
-    # generate_conf1 = np.round(np.random.uniform(low=0.4, high=1, size=above_conf), 4)
-    # generate_conf2 = np.round(np.random.uniform(low=0.0, high=0.5, size=below_conf), 4)
-    # # generate_conf = np.round(np.random.normal(loc=0.0, scale=1.0, size=num_point), 4)
-    # generate_conf = np.concatenate((generate_conf1, generate_conf2), axis=0)
-    # np.random.shuffle(generate_conf)
-    # all_detections_objs_original = {'centre': data_total, 'confidence': generate_conf}
-
-    # Part3, combine the samples decay and epochs here to build the whole model.
-    # Whether the decay is linear decrease or poly decrease. E.g., 100 -> 90 -> 80 ... or 100 -> 90 -> 72 -> 53.
+    """
+    Part3, combine the samples decay and epochs here to build the whole model.
+        Whether the decay is linear decrease or poly decrease. E.g., 100 -> 90 -> 80 ... or 100 -> 90 -> 72 -> 53.
+    **********************************************************************************************************
+    """
     for epoch in range(epochs):
-        # np.power()
-        num_point = int(num_point*(np.power(decay_rate, epoch)))
+        #
+        print("epoch: ", epoch)
+        print(np.round(num_point*(np.power(decay_rate, epoch))))
+        num_point = int(np.round(num_point*(np.power(decay_rate, epoch))))
         print(num_point)
-
-        # # The old version data construct. Which is wrong in some dimensions.
-        # new_points_x = np.hstack((re_sample_x, global_points_x))
-        # new_points_y = np.hstack((re_sample_y, global_points_y))
-        # data_total = np.vstack((new_points_x, new_points_y))
-        # above_conf = int(num_point*0.1)
-        # below_conf = num_point - above_conf
-        # generate_conf1 = np.round(np.random.uniform(low=0.4, high=1, size=above_conf), 4)
-        # generate_conf2 = np.round(np.random.uniform(low=0.0, high=0.5, size=below_conf), 4)
-        # # generate_conf = np.round(np.random.normal(loc=0.0, scale=1.0, size=num_point), 4)
-        # generate_conf = np.concatenate((generate_conf1, generate_conf2), axis=0)
-        # np.random.shuffle(generate_conf)
-        # all_detections_objs_original = {'centre': data_total, 'confidence': generate_conf}
 
         # The new construct data method.
         new_points_x = np.reshape(np.hstack((re_sample_x, global_points_x)), (-1, 1))
         new_points_y = np.reshape(np.hstack((re_sample_y, global_points_y)), (-1, 1))
         data_total = np.concatenate((new_points_x, new_points_y), axis=1)
-        above_conf = int(num_point * 0.1)
+        above_conf = int(np.round(num_point * 0.1))
         print('above confidence nums: ', above_conf)
         below_conf = num_point - above_conf
         print('below confidence nums: ', below_conf)
 
-        generate_conf1 = np.round(np.random.uniform(low=0.4, high=1, size=above_conf), 4)
-        generate_conf2 = np.round(np.random.uniform(low=0.0, high=0.5, size=below_conf), 4)
+        generate_conf1 = np.round(np.random.uniform(low=conf_threshold-0.1, high=1.0, size=above_conf), 4)
+        generate_conf2 = np.round(np.random.uniform(low=0.0, high=conf_threshold, size=below_conf), 4)
         # generate_conf = np.round(np.random.normal(loc=0.0, scale=1.0, size=num_point), 4)
         generate_conf = np.concatenate((generate_conf1, generate_conf2), axis=0)
         np.random.shuffle(generate_conf)
@@ -231,6 +214,7 @@ if __name__ == '__main__':
         global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
         global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
 
+        # plot the figure for each epoch.
         plt.figure(epoch)
         # 设置坐标轴的取值范围;
         plt.xlim((-5.5, 5.5))
@@ -242,9 +226,9 @@ if __name__ == '__main__':
         # 设置x坐标轴刻度;
         plt.xticks(np.linspace(-5, 5, 11))
         plt.yticks(np.linspace(-5, 5, 11))
-        plt.plot(global_points_x, global_points_y, 'mo', label='global_points')
+        plt.plot(global_points_x, global_points_y, 'mo', label='global dynamic sensing')
         plt.plot(re_sample_x, re_sample_y, 'g^', label='resampling points')
-        plt.plot(sampling_centers[:, 0], sampling_centers[:, 1], 'r*', label='original')
+        plt.plot(sampling_centers[:, 0], sampling_centers[:, 1], 'r*', label='object candidates')
         plt.legend(loc='best')
         plt.title('The distribution of resampling points at epoch: ' + str(epoch))
         # plt.savefig('based_on_prev_attention_epoch_' + str(epoch+1)+'.jpg')
