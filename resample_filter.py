@@ -44,6 +44,8 @@ def assign_samples(total_samples, all_detections_objs, remain_fraction):
             filtering_objs.append(obj_index)
     normalized_conf = np.array(filtered_conf)/total_weights  # normalized the weights of filtered objects.
 
+    print(normalized_conf)
+
     # Assign each filtered objects with some new sampling points, which is proportion to the weights.
     num_totals = np.round(total_samples*(1-remain_fraction))
     print('total assigned points: ', num_totals)
@@ -57,6 +59,7 @@ def assign_samples(total_samples, all_detections_objs, remain_fraction):
         sampling_centre_index = filtering_objs[i]
         sampling_centre = all_detections_objs['centre'][sampling_centre_index]
         sampling_centre_list.append(sampling_centre)
+        # here, the uniform distribution of the resampling points can be changed into normal distribution.
         sampling_x_radius = np.round(np.random.uniform(low=-radius, high=radius, size=sampling_nums), 4)
         sampling_x_axis.append(np.clip(sampling_x_radius+sampling_centre[0], -5, 5))
 
@@ -66,13 +69,13 @@ def assign_samples(total_samples, all_detections_objs, remain_fraction):
         # sampling_y_axis.append(min(max(sampling_y_radius + sampling_centre[1], -5), 5))
 
     # 02, Global information complement.
-    # Assign the remaining sample points to the global information without constraints.
+    # Assign the remaining sample points to the whole space, sensing the global information without constraints.
     # sampling_x_axis.append(np.round(np.random.uniform(low=-5, high=5, size=int(total_samples-num_totals)), 4))
     # sampling_y_axis.append(np.round(np.random.uniform(low=-5, high=5, size=int(total_samples-num_totals)), 4))
+    print("assigned_nums: ", assigned_nums)
+    print("The total assign nums: ", np.sum(assigned_nums))
     global_comp_points = int(total_samples - np.sum(assigned_nums))
-    # print(sampling_centre_list)
 
-    # print(np.vstack(sampling_centre_list))
     return np.hstack(sampling_x_axis), np.hstack(sampling_y_axis), np.vstack(sampling_centre_list), \
            filtering_objs, global_comp_points
 
@@ -102,17 +105,21 @@ if __name__ == '__main__':
     # plt.plot(np.array(all_detections_objs['centre'])[:, 0], np.array(all_detections_objs['centre'])[:, 1], '*',
     #          label='original_points')
     #
-    # re_sample_x, re_sample_y, filtered_objs, global_points = assign_samples(total_samples=20,
-    #                                                                         all_detections_objs=all_detections_objs,
-    #                                                                         remain_fraction=0.1)
-    # print('global_points: ', global_points)
-    # global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-    # global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
-    # plt.plot(global_points_x, global_points_y, 'o', label='global_points')
-    #
-    # plt.plot(re_sample_x, re_sample_y, '^', label='resampling points')
-    # plt.legend(loc='best', )
-    # plt.show()
+
+    re_sample_x, re_sample_y, sampling_centers, \
+        filtered_objs, global_points = assign_samples(total_samples=20,
+                                                      all_detections_objs=all_detections_objs_toy,
+                                                      remain_fraction=0.1)
+
+    print('global_points: ', global_points)
+    global_points_x = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    global_points_y = np.round(np.random.uniform(low=-5, high=5, size=global_points), 4)
+    plt.plot(global_points_x, global_points_y, 'o', label='global_points')
+    plt.plot(np.array(all_detections_objs_toy['centre'])[:, 0], np.array(all_detections_objs_toy['centre'])[:, 1], '*',
+             label='original points')
+    plt.plot(re_sample_x, re_sample_y, '^', label='resampling points')
+    plt.legend(loc='best', )
+    plt.show()
 
 
     # Part2, Using the random generate 100 samples to build and refine the model.
