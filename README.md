@@ -27,7 +27,7 @@ Reform the code.
 Add some simulations of total scanning numbers according to different steps.
 E.g., Scanning Windows (224x224), half the object's width as step length (224-80/2), full width of object as step length (224-80).
 
-![scan_simualtion](scan_simualtion.jpg =1000x1000)
-<img src="./scan_simualtion.jpg" alt="scan_simualtion" style="zoom:30%;" />
+<!-- ![scan_simualtion](scan_simualtion.jpg =1000x1000) -->
+<!-- <img src="./scan_simualtion.jpg" alt="scan_simualtion" style="zoom:30%;" /> -->
 
-<img src="./scan_simualtion.jpg" alt="scan_simualtion" width = "600" height = "600" />
+<img src="./scan_simualtion.jpg" alt="scan_simualtion" width = "700" height = "700" />
