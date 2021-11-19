@@ -22,3 +22,8 @@ Add some basic functions, include Number of samples vs scanning speed.
 Like NumOfSamples vs Average routes, NumOfSamples vs FPS, NumOfSamples vs Average Scanning time, 
 and NumOfSamples vs Total Scanning Time.
 Reform the code.
+
+### 2021-11-17
+Add some simulations of total scanning numbers according to different steps.
+E.g., Scanning Windows (224x224), half the object's width as step length (224-80/2), full width of object as step length (224-80).
+![scan_simualtion](scan_simulation.png)
