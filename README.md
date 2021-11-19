@@ -27,4 +27,4 @@ Reform the code.
 Add some simulations of total scanning numbers according to different steps.
 E.g., Scanning Windows (224x224), half the object's width as step length (224-80/2), full width of object as step length (224-80).
 
-![scan_simualtion](scan_simualtion.jpg)
+![scan_simualtion](scan_simualtion.jpg =1000)
