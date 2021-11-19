@@ -30,4 +30,4 @@ E.g., Scanning Windows (224x224), half the object's width as step length (224-80
 ![scan_simualtion](scan_simualtion.jpg =1000x1000)
 <img src="./scan_simualtion.jpg" alt="scan_simualtion" style="zoom:30%;" />
 
-<img src="./scan_simualtion.jpg" alt="scan_simualtion" width = "300" height = "300" />
+<img src="./scan_simualtion.jpg" alt="scan_simualtion" width = "1000" height = "1000" />
